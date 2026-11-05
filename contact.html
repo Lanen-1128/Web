@@ -1,35 +1,97 @@
-<script>
-  // 將你的 Google Apps Script URL 填入下方：
-  const scriptURL = 'https://script.google.com/macros/s/AKfycbxkXNvcP4UALZ0T-R-EFWbawueVFZibseu0AuFr910T2lu5T1YczkImEH-sF4DE-S6e-w/exec';
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>聯絡我們</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; line-height: 1.6; }
+    nav a { margin-right: 10px; }
+    form div { margin-bottom: 12px; }
+    label { display: block; font-weight: bold; }
+    input, textarea { width: 100%; max-width: 400px; padding: 8px; box-sizing: border-box; }
+    button { padding: 10px 20px; cursor: pointer; }
+    #responseMsg { margin-top: 15px; font-weight: bold; }
+  </style>
+</head>
+<body>
 
-  document.getElementById('contactForm').addEventListener('submit', function(e) {
-    e.preventDefault();
+  <!-- 選單導覽 -->
+  <nav>
+    <a href="index.html">首頁</a> | 
+    <a href="about.html">公司介紹</a> | 
+    <a href="contact.html">聯絡我們</a>
+  </nav>
+
+  <h1>聯絡我們</h1>
+
+  <!-- 聯絡表單[cite: 1] -->
+  <form id="contactForm">
+    <div>
+      <label for="name">姓名：</label>
+      <input type="text" id="name" name="name" required>
+    </div>
     
-    const responseMsg = document.getElementById('responseMsg');
-    responseMsg.innerText = "發送中，請稍候...";
+    <div>
+      <label for="phone">電話：</label>
+      <input type="tel" id="phone" name="phone" required>
+    </div>
+    
+    <div>
+      <label for="email">EMAIL：</label>
+      <input type="email" id="email" name="email" required>
+    </div>
+    
+    <div>
+      <label for="message">聯絡內容：</label>
+      <textarea id="message" name="message" rows="5" required></textarea>
+    </div>
+    
+    <button type="submit" id="submitBtn">送出表單</button>
+  </form>
 
-    const data = {
-      name: document.getElementById('name').value,
-      phone: document.getElementById('phone').value,
-      email: document.getElementById('email').value,
-      message: document.getElementById('message').value
-    };
+  <p id="responseMsg"></p>
 
-    fetch(scriptURL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data)
-    })
-    .then(() => {
-      responseMsg.innerText = "表單已成功送出！請至信箱查收。";
-      document.getElementById('contactForm').reset();
-    })
-    .catch(error => {
-      console.error('Error!', error.message);
-      responseMsg.innerText = "送出失敗，請再試一次。";
+  <script>
+    // 你的 Apps Script 部署網址
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbxkXNvcP4UALZ0T-R-EFWbawueVFZibseu0AuFr910T2lu5T1YczkImEH-sF4DE-S6e-w/exec';
+
+    document.getElementById('contactForm').addEventListener('submit', function(e) {
+      e.preventDefault(); // 防止網頁重新整理
+      
+      const responseMsg = document.getElementById('responseMsg');
+      const submitBtn = document.getElementById('submitBtn');
+      
+      responseMsg.innerText = "資料傳送中，請稍候...";
+      responseMsg.style.color = "blue";
+      submitBtn.disabled = true;
+
+      const formData = new FormData();
+      formData.append('name', document.getElementById('name').value);
+      formData.append('phone', document.getElementById('phone').value);
+      formData.append('email', document.getElementById('email').value);
+      formData.append('message', document.getElementById('message').value);
+
+      fetch(scriptURL, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        responseMsg.innerText = "表單已成功送出！請檢查你的信箱。";
+        responseMsg.style.color = "green";
+        document.getElementById('contactForm').reset();
+      })
+      .catch(error => {
+        console.error('Error!', error);
+        responseMsg.innerText = "送出失敗，請確認網路連線或重試。";
+        responseMsg.style.color = "red";
+      })
+      .finally(() => {
+        submitBtn.disabled = false;
+      });
     });
-  });
-</script>
+  </script>
+
+</body>
+</html>
+  
